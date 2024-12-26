@@ -79,7 +79,119 @@ public class CustomerGUI extends JFrame {
         });
 
         loginFrame.add(glassPanel);
+
+        JLabel signupLabel = new JLabel("Don't have an account? Sign up here");
+        signupLabel.setForeground(new Color(199, 227, 225));
+        signupLabel.setBounds(300, 460, 200, 30);
+        loginFrame.add(signupLabel);
+
+        signupLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        signupLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                loginFrame.dispose();
+                showSignupScreen();
+            }
+        });
+
+        JButton backToLandingButton = new JButton("Back to Landing Page");
+        backToLandingButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backToLandingButton.setBackground(new Color(0, 120, 215));
+        backToLandingButton.setForeground(Color.WHITE);
+        backToLandingButton.setBounds(300, 500, 200, 30);
+        backToLandingButton.addActionListener(e -> returnToLandingPage());
+        loginFrame.add(backToLandingButton);
+
         loginFrame.setVisible(true);
+    }
+
+    private void showSignupScreen() {
+        JFrame signupFrame = new JFrame("E-commerce Application - Customer Signup");
+        signupFrame.setSize(800, 600);
+        signupFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        signupFrame.setResizable(false);
+        signupFrame.getContentPane().setBackground(new Color(52, 73, 85));
+        signupFrame.setLayout(null);
+
+        JLabel label = new JLabel("Sign Up for ShopSphere");
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(new Color(199, 227, 225));
+        label.setBounds(0, 50, 800, 50);
+        signupFrame.add(label);
+
+        JPanel glassPanel = new JPanel();
+        glassPanel.setBounds(250, 150, 300, 350);
+        glassPanel.setBackground(new Color(80, 114, 123, 255));
+        glassPanel.setBorder(BorderFactory.createLineBorder(new Color(120, 160, 131), 2));
+        glassPanel.setLayout(null);
+
+        JTextField nameField = new JTextField();
+        nameField.setFont(new Font("Arial", Font.PLAIN, 16));
+        nameField.setBorder(BorderFactory.createTitledBorder("Name"));
+        nameField.setBounds(50, 30, 200, 40);
+        glassPanel.add(nameField);
+
+        JTextField usernameField = new JTextField();
+        usernameField.setFont(new Font("Arial", Font.PLAIN, 16));
+        usernameField.setBorder(BorderFactory.createTitledBorder("Username"));
+        usernameField.setBounds(50, 80, 200, 40);
+        glassPanel.add(usernameField);
+
+        JTextField emailField = new JTextField();
+        emailField.setFont(new Font("Arial", Font.PLAIN, 16));
+        emailField.setBorder(BorderFactory.createTitledBorder("Email"));
+        emailField.setBounds(50, 130, 200, 40);
+        glassPanel.add(emailField);
+
+        JPasswordField passwordField = new JPasswordField();
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
+        passwordField.setBorder(BorderFactory.createTitledBorder("Password"));
+        passwordField.setBounds(50, 180, 200, 40);
+        glassPanel.add(passwordField);
+
+        JTextField phoneField = new JTextField();
+        phoneField.setFont(new Font("Arial", Font.PLAIN, 16));
+        phoneField.setBorder(BorderFactory.createTitledBorder("Phone"));
+        phoneField.setBounds(50, 230, 200, 40);
+        glassPanel.add(phoneField);
+
+        JTextField addressField = new JTextField();
+        addressField.setFont(new Font("Arial", Font.PLAIN, 16));
+        addressField.setBorder(BorderFactory.createTitledBorder("Address"));
+        addressField.setBounds(50, 280, 200, 40);
+        glassPanel.add(addressField);
+
+        JButton signupButton = new JButton("Sign Up");
+        signupButton.setFont(new Font("Arial", Font.BOLD, 16));
+        signupButton.setBackground(new Color(0, 120, 215));
+        signupButton.setForeground(Color.WHITE);
+        signupButton.setBounds(100, 330, 100, 30);
+        glassPanel.add(signupButton);
+
+        signupButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = nameField.getText();
+                String username = usernameField.getText();
+                String email = emailField.getText();
+                String password = new String(passwordField.getPassword());
+                String phone = phoneField.getText();
+                String address = addressField.getText();
+
+                try {
+                    customer.signup(username, email, password);
+                    JOptionPane.showMessageDialog(null, "Signup successful!");
+                    signupFrame.dispose();
+                    showLoginScreen();
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                }
+            }
+        });
+
+        signupFrame.add(glassPanel);
+        signupFrame.setVisible(true);
     }
 
     private void showCustomerDashboard() {
@@ -145,16 +257,19 @@ public class CustomerGUI extends JFrame {
         JButton viewCartButton = new JButton("View Cart");
         JButton viewOrdersButton = new JButton("View Orders");
         JButton logoutButton = new JButton("Logout");
+        JButton returnToLandingButton = new JButton("Return to Landing Page");
 
         showProductsButton.addActionListener(e -> setupProductTable());
         viewCartButton.addActionListener(e -> viewCart());
         viewOrdersButton.addActionListener(e -> viewOrders());
         logoutButton.addActionListener(e -> logout());
+        returnToLandingButton.addActionListener(e -> returnToLandingPage());
 
         buttonPanel.add(showProductsButton);
         buttonPanel.add(viewCartButton);
         buttonPanel.add(viewOrdersButton);
         buttonPanel.add(logoutButton);
+        buttonPanel.add(returnToLandingButton);
     }
 
     private void viewCart() {
@@ -217,7 +332,6 @@ public class CustomerGUI extends JFrame {
                 orderTableModel.addRow(new Object[]{
                         order.getOrderId(),
                         order.getOrderDate(),
-//                        order.getTotalPrice(),
                         order.getOrderStatus()
                 });
             }
@@ -241,4 +355,10 @@ public class CustomerGUI extends JFrame {
         customerFrame.dispose();
         showLoginScreen();
     }
+
+    private void returnToLandingPage() {
+        loginFrame.dispose();
+        new LandingPage();
+    }
 }
+
