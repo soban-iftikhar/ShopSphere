@@ -4,17 +4,15 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class OrderItem implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private int productId;
+    private String productName;
+    private BigDecimal price;
+    private int quantity;
 
-    private final int productId;
-    private final String productName;
-    private final BigDecimal productPrice;
-    private final int quantity;
-
-    public OrderItem(int productId, String productName, BigDecimal productPrice, int quantity) {
+    public OrderItem(int productId, String productName, BigDecimal price, int quantity) {
         this.productId = productId;
         this.productName = productName;
-        this.productPrice = productPrice;
+        this.price = price;
         this.quantity = quantity;
     }
 
@@ -26,8 +24,8 @@ public class OrderItem implements Serializable {
         return productName;
     }
 
-    public BigDecimal getProductPrice() {
-        return productPrice;
+    public BigDecimal getPrice() {
+        return price;
     }
 
     public int getQuantity() {
@@ -35,13 +33,17 @@ public class OrderItem implements Serializable {
     }
 
     public BigDecimal getTotalPrice() {
-        return productPrice.multiply(BigDecimal.valueOf(quantity));
+        return price.multiply(BigDecimal.valueOf(quantity));
     }
 
     @Override
     public String toString() {
-        return String.format("Model.OrderItem[id=%d, name=%s, price=%s, quantity=%d]",
-                productId, productName, productPrice, quantity);
+        return String.format("OrderItem[productId=%d, productName=%s, price=%s, quantity=%d]",
+                productId, productName, price, quantity);
+    }
+
+    public BigDecimal getProductPrice() {
+        return price;
     }
 }
 

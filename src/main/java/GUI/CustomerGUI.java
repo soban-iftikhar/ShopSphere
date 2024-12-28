@@ -450,7 +450,7 @@ public class CustomerGUI extends JFrame {
 
                 if (!address.isEmpty() && !paymentMethod.isEmpty()) {
                     try {
-                        customer.placeOrder(address);
+                        customer.placeOrder(address, paymentMethod);
                         JOptionPane.showMessageDialog(customerFrame, "Order placed successfully!\nShipping Address: " + address + "\nPayment Method: " + paymentMethod);
                         showMainMenu();
                     } catch (IOException e) {
@@ -478,10 +478,11 @@ public class CustomerGUI extends JFrame {
                 orderTableModel.addRow(new Object[] {
                         order.getOrderId(),
                         order.getOrderDate(),
+                        calculateOrderTotal(order),
                         order.getOrderStatus()
                 });
             }
-        } catch (IOException | ClassNotFoundException e) {
+        }catch (IOException | ClassNotFoundException e) {
             JOptionPane.showMessageDialog(customerFrame, "Error loading orders: " + e.getMessage());
         }
 
@@ -498,6 +499,14 @@ public class CustomerGUI extends JFrame {
 
         contentPanel.revalidate();
         contentPanel.repaint();
+    }
+
+    private double calculateOrderTotal(Order order) {
+        double total = 0;
+        for (OrderItem item : order.getItems()) {
+            total += item.getTotalPrice().doubleValue();
+        }
+        return total;
     }
 
     private void logout() {

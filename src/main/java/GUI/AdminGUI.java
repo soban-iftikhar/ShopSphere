@@ -385,34 +385,139 @@ public class AdminGUI extends JFrame {
             }
         }
     }
-
     private void showOrders() {
         try {
             List<Order> orders = admin.viewOrders();
             JDialog ordersDialog = new JDialog(adminFrame, "Orders", true);
             ordersDialog.setLayout(new BorderLayout());
 
-            String[] columns = { "Order ID", "Customer", "Total", "Status" };
+            String[] columns = { "Order ID", "Customer", "Date", "Total", "Status", "Address", "Payment Method" };
             DefaultTableModel orderTableModel = new DefaultTableModel(columns, 0);
             JTable orderTable = new JTable(orderTableModel);
 
-             for (Order order : orders) {
-             orderTableModel.addRow(new Object[]{
-             order.getOrderId(),
-             order.getCustomerAddress(),
-             order.getOrderDateTime(),
-             order.getOrderStatus()
-             });
-             }
+            for (Order order : orders) {
+                orderTableModel.addRow(new Object[]{
+                        order.getOrderId(),
+                        order.getCustomerUsername(),
+                        order.getOrderDate(),
+                        calculateOrderTotal(order),
+                        order.getOrderStatus(),
+                        order.getCustomerAddress(),
+                        order.getPaymentMethod()
+                });
+            }
 
             JScrollPane scrollPane = new JScrollPane(orderTable);
             ordersDialog.add(scrollPane, BorderLayout.CENTER);
 
-            ordersDialog.setSize(400, 300);
+            JPanel buttonPanel = new JPanel();
+            JButton updateStatusButton = new JButton("Update Status");
+            updateStatusButton.addActionListener(e -> updateOrderStatus(orderTable));
+            buttonPanel.add(updateStatusButton);
+
+            JButton viewDetailsButton = new JButton("View Order Details");
+            viewDetailsButton.addActionListener(e -> viewOrderDetails(orderTable));
+            buttonPanel.add(viewDetailsButton);
+
+            ordersDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+            ordersDialog.setSize(800, 400);
             ordersDialog.setLocationRelativeTo(adminFrame);
             ordersDialog.setVisible(true);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(adminFrame, "Error loading orders: " + e.getMessage());
+        }
+    }
+    private void viewOrderDetails(JTable orderTable) {
+        int selectedRow = orderTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String orderId = (String) orderTable.getValueAt(selectedRow, 0);
+            try {
+                Order order = admin.getOrderById(orderId);
+                if (order != null) {
+                    JDialog detailsDialog = new JDialog(adminFrame, "Order Details", true);
+                    detailsDialog.setLayout(new BorderLayout());
+
+                    JPanel detailsPanel = new JPanel(new GridLayout(0, 2, 5, 5));
+                    detailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+                    addDetailRow(detailsPanel, "Order ID:", order.getOrderId());
+                    addDetailRow(detailsPanel, "Customer:", order.getCustomerUsername());
+                    addDetailRow(detailsPanel, "Date:", order.getOrderDate());
+                    addDetailRow(detailsPanel, "Time:", order.getOrderTime());
+                    addDetailRow(detailsPanel, "Status:", order.getOrderStatus());
+                    addDetailRow(detailsPanel, "Address:", order.getCustomerAddress());
+                    addDetailRow(detailsPanel, "Payment Method:", order.getPaymentMethod());
+                    addDetailRow(detailsPanel, "Total:", String.format("$%.2f", calculateOrderTotal(order)));
+
+                    detailsDialog.add(detailsPanel, BorderLayout.NORTH);
+
+                    String[] columns = { "Product", "Quantity", "Price", "Total" };
+                    DefaultTableModel itemsTableModel = new DefaultTableModel(columns, 0);
+                    JTable itemsTable = new JTable(itemsTableModel);
+
+                    for (OrderItem item : order.getItems()) {
+                        itemsTableModel.addRow(new Object[]{
+                                item.getProductName(),
+                                item.getQuantity(),
+                                String.format("$%.2f", item.getPrice()),
+                                String.format("$%.2f", item.getTotalPrice())
+                        });
+                    }
+
+                    JScrollPane scrollPane = new JScrollPane(itemsTable);
+                    detailsDialog.add(scrollPane, BorderLayout.CENTER);
+
+                    detailsDialog.setSize(600, 400);
+                    detailsDialog.setLocationRelativeTo(adminFrame);
+                    detailsDialog.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(adminFrame, "Order not found.");
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(adminFrame, "Error loading order details: " + e.getMessage());
+            }
+        } else {
+            JOptionPane.showMessageDialog(adminFrame, "Please select an order to view details.");
+        }
+    }
+
+    private void addDetailRow(JPanel panel, String label, String value) {
+        panel.add(new JLabel(label));
+        panel.add(new JLabel(value));
+    }
+
+    private double calculateOrderTotal(Order order) {
+        double total = 0;
+        for (OrderItem item : order.getItems()) {
+            total += item.getTotalPrice().doubleValue();
+        }
+        return total;
+    }
+
+    private void updateOrderStatus(JTable orderTable) {
+        int selectedRow = orderTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String orderId = (String) orderTable.getValueAt(selectedRow, 0);
+            String[] options = {"Processed", "Shipped", "Delivered"};
+            String newStatus = (String) JOptionPane.showInputDialog(adminFrame,
+                    "Select new status:", "Update Order Status",
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+            if (newStatus != null) {
+                try {
+                    if (admin.updateOrderStatus(orderId, newStatus)) {
+                        JOptionPane.showMessageDialog(adminFrame, "Order status updated successfully.");
+                        orderTable.setValueAt(newStatus, selectedRow, 4);
+                    } else {
+                        JOptionPane.showMessageDialog(adminFrame, "Failed to update order status.");
+                    }
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(adminFrame, "Error updating order status: " + e.getMessage());
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(adminFrame, "Please select an order to update.");
         }
     }
 

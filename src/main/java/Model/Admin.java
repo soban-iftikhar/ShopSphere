@@ -1,34 +1,28 @@
 package Model;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Admin extends Person {
     public Admin() {
-        // Load products when Model.Admin is instantiated
         Product.loadProductsFromFile();
     }
 
     public Admin(String name, String username, String email, String password, String phone, String address) {
         super(name, username, email, password, phone, address);
-        // Load products when Model.Admin is instantiated
         Product.loadProductsFromFile();
     }
 
     @Override
     public void signup(String name, String username, String email) {
-        throw new UnsupportedOperationException("Model.Admin signup is not supported.");
+        throw new UnsupportedOperationException("Admin signup is not supported.");
     }
 
     @Override
     public boolean signIn(String username, String password) {
-        // Hard-coded admin credentials (for demonstration only; replace with secure authentication)
         String adminUsername = "admin";
         String adminPassword = "admin";
-        if(username.equals(adminUsername) && password.equals(adminPassword)) {
-            return true;
-        }
-       return false;
+        return username.equals(adminUsername) && password.equals(adminPassword);
     }
 
     public void addProduct(int id, String name, String company, double price, int stock) {
@@ -60,13 +54,25 @@ public class Admin extends Person {
     }
 
     public List<Order> viewOrders() throws IOException {
-        // Assuming Model.Order class has a static method to load orders
         return Order.loadOrders();
+    }
+
+    public boolean updateOrderStatus(String orderId, String newStatus) throws IOException {
+        List<Order> orders = Order.loadOrders();
+        for (Order order : orders) {
+            if (order.getOrderId().equals(orderId)) {
+                order.setOrderStatus(newStatus);
+                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(Order.ORDER_FILE))) {
+                    oos.writeObject(orders);
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void logout() {
-        // Save products before logging out
         Product.saveProductsToFile();
     }
 
@@ -76,6 +82,16 @@ public class Admin extends Person {
 
     public Product getProductById(int id) {
         return Product.findProductById(id);
+    }
+
+    public Order getOrderById(String orderId) throws IOException {
+        List<Order> orders = Order.loadOrders();
+        for (Order order : orders) {
+            if (order.getOrderId().equals(orderId)) {
+                return order;
+            }
+        }
+        return null;
     }
 
     @Override

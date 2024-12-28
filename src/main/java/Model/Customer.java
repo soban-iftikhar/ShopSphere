@@ -6,17 +6,16 @@ import java.util.*;
 public class Customer extends Person implements Serializable {
     private static final String FILE_NAME = "credentials.txt";
 
-    // Lists to store usernames, emails, and passwords for user management
     private final ArrayList<String> usernames = new ArrayList<>();
     private final ArrayList<String> emails = new ArrayList<>();
     private final ArrayList<String> passwords = new ArrayList<>();
     private Cart cart;
+    private String currentUsername; // Add this line
 
-    // Constructor
     public Customer() {
         this.cart = new Cart();
         loadUserCredentials();
-        Product.loadProductsFromFile(); // Add this line
+        Product.loadProductsFromFile();
     }
 
     public Customer(String name, String username, String email, String password, String phone, String address) {
@@ -24,9 +23,7 @@ public class Customer extends Person implements Serializable {
         this.cart = new Cart();
         loadUserCredentials();
     }
-    public void updateProductStock(int productId, int newStock) {
-        Product.updateStock(productId, newStock);
-    }
+
     @Override
     public void signup(String username, String email, String password) {
         if (usernames.contains(username)) {
@@ -42,6 +39,7 @@ public class Customer extends Person implements Serializable {
     public boolean signIn(String username, String password) {
         for (int i = 0; i < usernames.size(); i++) {
             if ((username.equals(usernames.get(i)) || username.equals(emails.get(i))) && password.equals(passwords.get(i))) {
+                currentUsername = usernames.get(i); // Set current username
                 return true;
             }
         }
@@ -50,7 +48,7 @@ public class Customer extends Person implements Serializable {
 
     @Override
     public void logout() {
-        // Perform any necessary logout operations
+        currentUsername = null; // Clear current username
     }
 
     @Override
@@ -63,7 +61,6 @@ public class Customer extends Person implements Serializable {
         return Product.findProductById(id);
     }
 
-    // Save user credentials to a file
     private void saveUserCredentials() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(usernames);
@@ -74,7 +71,6 @@ public class Customer extends Person implements Serializable {
         }
     }
 
-    // Load user credentials from a file
     @SuppressWarnings("unchecked")
     private void loadUserCredentials() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
@@ -89,7 +85,6 @@ public class Customer extends Person implements Serializable {
         }
     }
 
-    // Cart Management
     public void addItemToCart(OrderItem item) {
         cart.addItem(item);
     }
@@ -114,9 +109,11 @@ public class Customer extends Person implements Serializable {
         return cart.getTotalPrice();
     }
 
-    // Order Management
-    public void placeOrder(String customerAddress) throws IOException {
-        Order order = new Order(customerAddress);
+    public void placeOrder(String customerAddress, String payementMethod) throws IOException {
+        if (currentUsername == null) {
+            throw new IllegalStateException("Customer is not logged in.");
+        }
+        Order order = new Order(currentUsername, customerAddress, payementMethod);
         for (OrderItem item : cart.getItems()) {
             order.addItem(item);
         }
@@ -125,6 +122,21 @@ public class Customer extends Person implements Serializable {
     }
 
     public List<Order> viewOrders() throws IOException, ClassNotFoundException {
-        return Order.loadOrders();
+        if (currentUsername == null) {
+            throw new IllegalStateException("Customer is not logged in.");
+        }
+        List<Order> allOrders = Order.loadOrders();
+        List<Order> customerOrders = new ArrayList<>();
+        for (Order order : allOrders) {
+            if (order.getCustomerUsername().equals(currentUsername)) {
+                customerOrders.add(order);
+            }
+        }
+        return customerOrders;
+    }
+
+    public void updateProductStock(int productId, int newStock) {
+        Product.updateStock(productId, newStock);
     }
 }
+

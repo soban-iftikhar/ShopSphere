@@ -6,20 +6,24 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Order implements Serializable {
-    private static final String ORDER_FILE = "orders.txt";
+    public static final String ORDER_FILE = "orders.txt";
 
     private String orderId;
+    private String customerUsername;
     private String customerAddress;
     private LocalDateTime orderDateTime;
     private List<OrderItem> items;
     private String orderStatus;
+    private String paymentMethod;
 
-    public Order(String customerAddress) {
+    public Order(String customerUsername, String customerAddress, String paymentMethod) { // Update constructor
         this.orderId = generateOrderId();
+        this.customerUsername = customerUsername;
         this.customerAddress = customerAddress;
         this.orderDateTime = LocalDateTime.now();
         this.items = new ArrayList<>();
-        this.orderStatus = "Pending"; // Default status
+        this.orderStatus = "Pending";
+        this.paymentMethod = paymentMethod; // Add this line
     }
 
     private String generateOrderId() {
@@ -36,6 +40,10 @@ public class Order implements Serializable {
 
     public String getOrderId() {
         return orderId;
+    }
+
+    public String getCustomerUsername() { // Add this getter
+        return customerUsername;
     }
 
     public String getCustomerAddress() {
@@ -69,7 +77,9 @@ public class Order implements Serializable {
             oos.writeObject(orders);
         }
     }
-
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
     public static List<Order> loadOrders() {
         File file = new File(ORDER_FILE);
         if (!file.exists()) {
@@ -84,6 +94,8 @@ public class Order implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("Model.Order[id=%s, date=%s, time=%s, status=%s, items=%s]", orderId, getOrderDate(), getOrderTime(), orderStatus, items);
+        return String.format("Order[id=%s, customer=%s, date=%s, time=%s, status=%s, items=%s]",
+                orderId, customerUsername, getOrderDate(), getOrderTime(), orderStatus, items);
     }
 }
+
