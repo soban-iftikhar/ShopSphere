@@ -1,4 +1,5 @@
 package GUI;
+
 import Model.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -6,7 +7,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.List;
-
 
 public class AdminGUI extends JFrame {
     private Admin admin;
@@ -27,19 +27,29 @@ public class AdminGUI extends JFrame {
         loginFrame.setSize(800, 600);
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         loginFrame.setResizable(false);
-        loginFrame.getContentPane().setBackground(new Color(52, 73, 85));
         loginFrame.setLayout(null);
+        loginFrame.setLocationRelativeTo(null);
 
+        // Load the background image
+        ImageIcon backgroundImage = new ImageIcon("ninyy.jpg");
+
+        // Create a JLabel for the background image
+        JLabel backgroundLabel = new JLabel(backgroundImage);
+        backgroundLabel.setBounds(0, 0, 800, 600);
+        loginFrame.add(backgroundLabel);
+
+        // Create a transparent label for the welcome message
         JLabel label = new JLabel("Welcome to ShopSphere");
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 18));
         label.setForeground(new Color(199, 227, 225));
         label.setBounds(0, 50, 800, 50);
-        loginFrame.add(label);
+        backgroundLabel.add(label);
 
+        // Glass panel for login fields
         JPanel glassPanel = new JPanel();
-        glassPanel.setBounds(250, 150, 300, 300);
-        glassPanel.setBackground(new Color(80, 114, 123, 255));
+        glassPanel.setBounds(250, 150, 300, 250); // Adjusted height to fit better
+        glassPanel.setBackground(new Color(80, 114, 123, 200)); // Slight transparency
         glassPanel.setBorder(BorderFactory.createLineBorder(new Color(120, 160, 131), 2));
         glassPanel.setLayout(null);
 
@@ -62,6 +72,15 @@ public class AdminGUI extends JFrame {
         loginButton.setBounds(100, 150, 100, 30);
         glassPanel.add(loginButton);
 
+        // Back to Landing Page button at the left bottom corner
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        backButton.setBackground(new Color(34, 139, 34)); // Green color
+        backButton.setForeground(Color.WHITE);
+        backButton.setBounds(10, 510, 100, 30); // Positioned at the left bottom corner
+        backgroundLabel.add(backButton); // Added to backgroundLabel instead of glassPanel
+
+        // Action for login button
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -78,7 +97,19 @@ public class AdminGUI extends JFrame {
             }
         });
 
-        loginFrame.add(glassPanel);
+        // Action for back button
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Close the login screen and show the landing page
+                loginFrame.dispose();
+                new LandingPage(); // Implement this method to show the landing page
+            }
+        });
+
+        // Add glass panel to the background label
+        backgroundLabel.add(glassPanel);
+
         loginFrame.setVisible(true);
     }
 
@@ -88,23 +119,38 @@ public class AdminGUI extends JFrame {
         adminFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         adminFrame.setLocationRelativeTo(null);
 
+        // Load the background image
+        ImageIcon backgroundImage = new ImageIcon("nin.jpg");
+
+        // Create a JLabel with the image as its icon
+        JLabel backgroundLabel = new JLabel(backgroundImage);
+        backgroundLabel.setLayout(new BorderLayout()); // Allow adding components over the background
+
+        // Main panel for the dashboard
         mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setOpaque(false); // Make the panel transparent to show the background image
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.setOpaque(false); // Transparent button panel
         addButtons(buttonPanel);
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
 
         contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setOpaque(false); // Transparent content panel
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        adminFrame.add(mainPanel);
+        // Add mainPanel to backgroundLabel
+        backgroundLabel.add(mainPanel);
+
+        // Add backgroundLabel to the frame
+        adminFrame.add(backgroundLabel);
         adminFrame.setVisible(true);
     }
 
     private void setupProductTable() {
         contentPanel.removeAll();
 
-        String[] columns = {"ID", "Name", "Company", "Price", "Stock"};
+        String[] columns = { "ID", "Name", "Company", "Price", "Stock" };
         tableModel = new DefaultTableModel(columns, 0);
         productTable = new JTable(tableModel);
         refreshProductTable();
@@ -130,7 +176,7 @@ public class AdminGUI extends JFrame {
         tableModel.setRowCount(0);
         List<Product> products = admin.getProducts();
         for (Product product : products) {
-            tableModel.addRow(new Object[]{
+            tableModel.addRow(new Object[] {
                     product.getId(),
                     product.getName(),
                     product.getCompany(),
@@ -141,6 +187,9 @@ public class AdminGUI extends JFrame {
     }
 
     private void addButtons(JPanel buttonPanel) {
+        buttonPanel.setLayout(new GridLayout(2, 3, 20, 20)); // 2 rows, 3 columns, with spacing
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50)); // Add padding around the panel
+
         JButton showProductsButton = new JButton("Show Products");
         JButton addButton = new JButton("Add Product");
         JButton removeButton = new JButton("Remove Product");
@@ -148,43 +197,76 @@ public class AdminGUI extends JFrame {
         JButton viewOrdersButton = new JButton("View Orders");
         JButton logoutButton = new JButton("Logout");
 
+        // Set button properties to make them large and visually appealing
+        JButton[] buttons = {
+                showProductsButton, addButton, removeButton, updateButton, viewOrdersButton, logoutButton
+        };
+
+        for (JButton button : buttons) {
+            button.setFont(new Font("Arial", Font.BOLD, 18));
+            button.setPreferredSize(new Dimension(200, 100));
+            buttonPanel.add(button);
+        }
+
+        // Add action listeners for buttons
         showProductsButton.addActionListener(e -> setupProductTable());
         addButton.addActionListener(e -> showAddProductDialog());
         removeButton.addActionListener(e -> showRemoveProductDialog());
         updateButton.addActionListener(e -> showUpdateProductDialog());
         viewOrdersButton.addActionListener(e -> showOrders());
         logoutButton.addActionListener(e -> logout());
-
-        buttonPanel.add(showProductsButton);
-        buttonPanel.add(addButton);
-        buttonPanel.add(removeButton);
-        buttonPanel.add(updateButton);
-        buttonPanel.add(viewOrdersButton);
-        buttonPanel.add(logoutButton);
     }
 
     private void showAddProductDialog() {
         JDialog dialog = new JDialog(adminFrame, "Add Product", true);
-        dialog.setLayout(new GridLayout(6, 2, 5, 5));
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField idField = new JTextField();
-        JTextField nameField = new JTextField();
-        JTextField companyField = new JTextField();
-        JTextField priceField = new JTextField();
-        JTextField stockField = new JTextField();
+        JTextField idField = new JTextField(20); // Wider fields
+        JTextField nameField = new JTextField(20);
+        JTextField companyField = new JTextField(20);
+        JTextField priceField = new JTextField(20);
+        JTextField stockField = new JTextField(20);
 
-        dialog.add(new JLabel("Product ID:"));
-        dialog.add(idField);
-        dialog.add(new JLabel("Name:"));
-        dialog.add(nameField);
-        dialog.add(new JLabel("Company:"));
-        dialog.add(companyField);
-        dialog.add(new JLabel("Price:"));
-        dialog.add(priceField);
-        dialog.add(new JLabel("Stock:"));
-        dialog.add(stockField);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        dialog.add(new JLabel("Product ID:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(idField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        dialog.add(new JLabel("Name:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(nameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        dialog.add(new JLabel("Company:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(companyField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        dialog.add(new JLabel("Price:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(priceField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        dialog.add(new JLabel("Stock:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(stockField, gbc);
 
         JButton submitButton = new JButton("Add");
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        dialog.add(submitButton, gbc);
+
         submitButton.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(idField.getText());
@@ -201,8 +283,7 @@ public class AdminGUI extends JFrame {
             }
         });
 
-        dialog.add(submitButton);
-        dialog.pack();
+        dialog.setSize(400, 300); // Adjust the size of the dialog
         dialog.setLocationRelativeTo(adminFrame);
         dialog.setVisible(true);
     }
@@ -232,23 +313,48 @@ public class AdminGUI extends JFrame {
                 Product product = admin.getProductById(id);
                 if (product != null) {
                     JDialog dialog = new JDialog(adminFrame, "Update Product", true);
-                    dialog.setLayout(new GridLayout(6, 2, 5, 5));
+                    dialog.setLayout(new GridBagLayout());
+                    GridBagConstraints gbc = new GridBagConstraints();
+                    gbc.insets = new Insets(5, 5, 5, 5); // Add space between components
+                    gbc.fill = GridBagConstraints.HORIZONTAL;
 
-                    JTextField nameField = new JTextField(product.getName());
-                    JTextField companyField = new JTextField(product.getCompany());
-                    JTextField priceField = new JTextField(String.valueOf(product.getPrice()));
-                    JTextField stockField = new JTextField(String.valueOf(product.getStock()));
+                    JTextField nameField = new JTextField(product.getName(), 20); // Wider fields
+                    JTextField companyField = new JTextField(product.getCompany(), 20);
+                    JTextField priceField = new JTextField(String.valueOf(product.getPrice()), 20);
+                    JTextField stockField = new JTextField(String.valueOf(product.getStock()), 20);
 
-                    dialog.add(new JLabel("Name:"));
-                    dialog.add(nameField);
-                    dialog.add(new JLabel("Company:"));
-                    dialog.add(companyField);
-                    dialog.add(new JLabel("Price:"));
-                    dialog.add(priceField);
-                    dialog.add(new JLabel("Stock:"));
-                    dialog.add(stockField);
+                    // Add components with GridBag constraints
+                    gbc.gridx = 0;
+                    gbc.gridy = 0;
+                    dialog.add(new JLabel("Name:"), gbc);
+                    gbc.gridx = 1;
+                    dialog.add(nameField, gbc);
+
+                    gbc.gridx = 0;
+                    gbc.gridy = 1;
+                    dialog.add(new JLabel("Company:"), gbc);
+                    gbc.gridx = 1;
+                    dialog.add(companyField, gbc);
+
+                    gbc.gridx = 0;
+                    gbc.gridy = 2;
+                    dialog.add(new JLabel("Price:"), gbc);
+                    gbc.gridx = 1;
+                    dialog.add(priceField, gbc);
+
+                    gbc.gridx = 0;
+                    gbc.gridy = 3;
+                    dialog.add(new JLabel("Stock:"), gbc);
+                    gbc.gridx = 1;
+                    dialog.add(stockField, gbc);
 
                     JButton submitButton = new JButton("Update");
+                    gbc.gridx = 0;
+                    gbc.gridy = 4;
+                    gbc.gridwidth = 2;
+                    gbc.anchor = GridBagConstraints.CENTER;
+                    dialog.add(submitButton, gbc);
+
                     submitButton.addActionListener(e -> {
                         try {
                             String name = nameField.getText();
@@ -268,8 +374,7 @@ public class AdminGUI extends JFrame {
                         }
                     });
 
-                    dialog.add(submitButton);
-                    dialog.pack();
+                    dialog.setSize(400, 300); // Adjust the dialog size to match the previous size
                     dialog.setLocationRelativeTo(adminFrame);
                     dialog.setVisible(true);
                 } else {
@@ -287,18 +392,18 @@ public class AdminGUI extends JFrame {
             JDialog ordersDialog = new JDialog(adminFrame, "Orders", true);
             ordersDialog.setLayout(new BorderLayout());
 
-            String[] columns = {"Order ID", "Customer", "Total", "Status"};
+            String[] columns = { "Order ID", "Customer", "Total", "Status" };
             DefaultTableModel orderTableModel = new DefaultTableModel(columns, 0);
             JTable orderTable = new JTable(orderTableModel);
 
-//            for (Order order : orders) {
-//                orderTableModel.addRow(new Object[]{
-//                        order.getId(),
-//                        order.getCustomerName(),
-//                        order.getTotal(),
-//                        order.getStatus()
-//                });
-//            }
+             for (Order order : orders) {
+             orderTableModel.addRow(new Object[]{
+             order.getOrderId(),
+             order.getCustomerAddress(),
+             order.getOrderDateTime(),
+             order.getOrderStatus()
+             });
+             }
 
             JScrollPane scrollPane = new JScrollPane(orderTable);
             ordersDialog.add(scrollPane, BorderLayout.CENTER);

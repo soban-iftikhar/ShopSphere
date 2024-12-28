@@ -17,20 +17,35 @@ public class LandingPage extends JFrame {
         mainFrame.setSize(800, 600);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setResizable(false);
-        mainFrame.getContentPane().setBackground(new Color(52, 73, 85));
-        mainFrame.setLayout(null);
+        mainFrame.setLocationRelativeTo(null);
+
+        // Custom JPanel for background image
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ImageIcon background = new ImageIcon("ninyy.jpg");
+
+                Image img = background.getImage();
+                g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        backgroundPanel.setLayout(null); // Set layout to null for absolute positioning
 
         JLabel label = new JLabel("Welcome to ShopSphere");
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 24));
         label.setForeground(new Color(199, 227, 225));
         label.setBounds(0, 50, 800, 50);
-        mainFrame.add(label);
+        backgroundPanel.add(label);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBounds(250, 200, 300, 200);
-        buttonPanel.setBackground(new Color(80, 114, 123, 255));
-        buttonPanel.setBorder(BorderFactory.createLineBorder(new Color(120, 160, 131), 2));
+        buttonPanel.setBackground(new Color(80, 114, 123, 200)); // Slight transparency
+        buttonPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createRaisedBevelBorder(),
+                BorderFactory.createLineBorder(new Color(120, 160, 131), 2) // 3D effect
+        ));
         buttonPanel.setLayout(new GridLayout(2, 1, 10, 10));
 
         JButton customerButton = new JButton("Customer Login");
@@ -60,17 +75,8 @@ public class LandingPage extends JFrame {
         buttonPanel.add(customerButton);
         buttonPanel.add(adminButton);
 
-        mainFrame.add(buttonPanel);
+        backgroundPanel.add(buttonPanel);
+        mainFrame.setContentPane(backgroundPanel); // Set the background panel as the content pane
         mainFrame.setVisible(true);
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new LandingPage();
-            }
-        });
-    }
 }
-

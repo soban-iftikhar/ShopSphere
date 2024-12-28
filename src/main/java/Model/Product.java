@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Product implements Serializable {
+    private static final long serialVersionUID = 5021507558065239732L;  // Add this line
     private static final String FILE_NAME = "products.txt";
     private static List<Product> productList = new ArrayList<>();
 
@@ -13,6 +14,10 @@ public class Product implements Serializable {
     private String company;
     private double price;
     private int stock;
+
+    // Default constructor
+    public Product() {
+    }
 
     // Constructor
     public Product(int id, String name, String company, double price, int stock) {
@@ -66,18 +71,34 @@ public class Product implements Serializable {
 
     // Methods for File Operations
     public static void saveProductsToFile() {
+        if (productList == null || productList.isEmpty()) {
+            System.out.println("Product list is empty. Nothing to save.");
+            return;
+        }
+
+        System.out.println("Saving " + productList.size() + " products to file."); //Added debug print statement
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(productList);
+            System.out.println("Products saved successfully.");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error saving products: " + e.getMessage());
         }
     }
 
     public static void loadProductsFromFile() {
+        File file = new File(FILE_NAME);
+        if (!file.exists()) {
+            System.out.println("File not found. Initializing empty product list.");
+            productList = new ArrayList<>(); // Avoid overwriting the list if file doesn't exist
+            return;
+        }
+
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
             productList = (List<Product>) ois.readObject();
+            System.out.println("Loaded " + productList.size() + " products from file."); //Added debug print statement
+            System.out.println("Products loaded successfully.");
         } catch (IOException | ClassNotFoundException e) {
-            productList = new ArrayList<>();
+            System.err.println("Error loading products: " + e.getMessage());
         }
     }
 
@@ -87,7 +108,7 @@ public class Product implements Serializable {
             return false;
         }
         productList.add(product);
-        saveProductsToFile();
+        saveProductsToFile();  // Save after adding a product
         return true;
     }
 
@@ -104,6 +125,20 @@ public class Product implements Serializable {
     // Method to Get All Products
     public static List<Product> getAllProducts() {
         return productList;
+    }
+
+    public static void updateStock(int productId, int newStock) {
+        for (Product product : productList) {
+            if (product.getId() == productId) {
+                product.setStock(newStock);
+                break;
+            }
+        }
+        saveProductsToFile();
+    }
+
+    static {
+        loadProductsFromFile();
     }
 
     @Override

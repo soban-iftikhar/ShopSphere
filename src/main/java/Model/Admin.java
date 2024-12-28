@@ -25,7 +25,10 @@ public class Admin extends Person {
         // Hard-coded admin credentials (for demonstration only; replace with secure authentication)
         String adminUsername = "admin";
         String adminPassword = "admin";
-        return adminUsername.equals(username) && adminPassword.equals(password);
+        if(username.equals(adminUsername) && password.equals(adminPassword)) {
+            return true;
+        }
+       return false;
     }
 
     public void addProduct(int id, String name, String company, double price, int stock) {

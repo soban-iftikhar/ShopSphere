@@ -6,6 +6,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class CustomerGUI extends JFrame {
@@ -27,21 +28,28 @@ public class CustomerGUI extends JFrame {
         loginFrame.setSize(800, 600);
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         loginFrame.setResizable(false);
-        loginFrame.getContentPane().setBackground(new Color(52, 73, 85));
+        loginFrame.setLocationRelativeTo(null);
         loginFrame.setLayout(null);
+
+        // Load background image
+        ImageIcon backgroundImage = new ImageIcon("ninyy.jpg"); // Replace with your image
+        JLabel backgroundLabel = new JLabel(backgroundImage);
+        backgroundLabel.setBounds(0, 0, 800, 600); // Set the background image size to fit the frame
+        loginFrame.add(backgroundLabel);
 
         JLabel label = new JLabel("Welcome to ShopSphere - Customer Portal");
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 18));
         label.setForeground(new Color(199, 227, 225));
         label.setBounds(0, 50, 800, 50);
-        loginFrame.add(label);
+        backgroundLabel.add(label); // Add label to the background panel
 
         JPanel glassPanel = new JPanel();
-        glassPanel.setBounds(250, 150, 300, 300);
-        glassPanel.setBackground(new Color(80, 114, 123, 255));
+        glassPanel.setBounds(250, 150, 300, 220); // Adjusted size to fit the components
+        glassPanel.setBackground(new Color(80, 114, 123, 255)); // Semi-transparent background
         glassPanel.setBorder(BorderFactory.createLineBorder(new Color(120, 160, 131), 2));
         glassPanel.setLayout(null);
+        backgroundLabel.add(glassPanel); // Add glass panel to the background
 
         JTextField usernameField = new JTextField();
         usernameField.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -78,12 +86,26 @@ public class CustomerGUI extends JFrame {
             }
         });
 
-        loginFrame.add(glassPanel);
+        // Back Button (Green color) added directly to the backgroundLabel
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.setBackground(new Color(39, 174, 96)); // Green color
+        backButton.setForeground(Color.WHITE);
+        backButton.setBounds(10, 530, 80, 30); // Positioned at the bottom left of the entire screen
+        backgroundLabel.add(backButton);
 
-        JLabel signupLabel = new JLabel("Don't have an account? Sign up here");
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loginFrame.dispose(); // Close current login screen
+                new LandingPage(); // Go back to the main landing page screen
+            }
+        });
+
+        JLabel signupLabel = new JLabel("Don't have an account? Sign up");
         signupLabel.setForeground(new Color(199, 227, 225));
         signupLabel.setBounds(300, 460, 200, 30);
-        loginFrame.add(signupLabel);
+        backgroundLabel.add(signupLabel); // Add signup label to the background
 
         signupLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         signupLabel.addMouseListener(new MouseAdapter() {
@@ -93,14 +115,6 @@ public class CustomerGUI extends JFrame {
                 showSignupScreen();
             }
         });
-
-        JButton backToLandingButton = new JButton("Back to Landing Page");
-        backToLandingButton.setFont(new Font("Arial", Font.BOLD, 14));
-        backToLandingButton.setBackground(new Color(0, 120, 215));
-        backToLandingButton.setForeground(Color.WHITE);
-        backToLandingButton.setBounds(300, 500, 200, 30);
-        backToLandingButton.addActionListener(e -> returnToLandingPage());
-        loginFrame.add(backToLandingButton);
 
         loginFrame.setVisible(true);
     }
@@ -121,7 +135,9 @@ public class CustomerGUI extends JFrame {
         signupFrame.add(label);
 
         JPanel glassPanel = new JPanel();
-        glassPanel.setBounds(250, 150, 300, 350);
+        int glassPanelWidth = 300;
+        int glassPanelHeight = 400;
+        glassPanel.setBounds((signupFrame.getWidth() - glassPanelWidth) / 2, (signupFrame.getHeight() - glassPanelHeight) / 2, glassPanelWidth, glassPanelHeight);
         glassPanel.setBackground(new Color(80, 114, 123, 255));
         glassPanel.setBorder(BorderFactory.createLineBorder(new Color(120, 160, 131), 2));
         glassPanel.setLayout(null);
@@ -166,8 +182,19 @@ public class CustomerGUI extends JFrame {
         signupButton.setFont(new Font("Arial", Font.BOLD, 16));
         signupButton.setBackground(new Color(0, 120, 215));
         signupButton.setForeground(Color.WHITE);
-        signupButton.setBounds(100, 330, 100, 30);
+        signupButton.setBounds(100, 330, 100, 30); // Adjusted to prevent clipping
         glassPanel.add(signupButton);
+
+        // Add the glass panel to the frame
+        signupFrame.add(glassPanel);
+
+        // Back Button outside glass panel, positioned at bottom-left of the screen
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.setBackground(new Color(39, 174, 96)); // Green color for the Back button
+        backButton.setForeground(Color.WHITE);
+        backButton.setBounds(10, 530, 80, 30); // Positioned at bottom-left corner of entire screen
+        signupFrame.add(backButton);
 
         signupButton.addActionListener(new ActionListener() {
             @Override
@@ -183,14 +210,23 @@ public class CustomerGUI extends JFrame {
                     customer.signup(username, email, password);
                     JOptionPane.showMessageDialog(null, "Signup successful!");
                     signupFrame.dispose();
-                    showLoginScreen();
+                    showLoginScreen(); // Go to the login screen after successful signup
                 } catch (IllegalArgumentException ex) {
                     JOptionPane.showMessageDialog(null, ex.getMessage());
                 }
             }
         });
 
-        signupFrame.add(glassPanel);
+        // Action listener for Back button
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                signupFrame.dispose(); // Close the signup screen
+                showLoginScreen(); // Go to the login screen
+            }
+        });
+
+        signupFrame.setLocationRelativeTo(null);
         signupFrame.setVisible(true);
     }
 
@@ -200,23 +236,38 @@ public class CustomerGUI extends JFrame {
         customerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         customerFrame.setLocationRelativeTo(null);
 
+        // Load the background image
+        ImageIcon backgroundImage = new ImageIcon("nin.jpg");
+
+        // Create a JLabel with the image as its icon
+        JLabel backgroundLabel = new JLabel(backgroundImage);
+        backgroundLabel.setLayout(new BorderLayout()); // Allow adding components over the background
+
+        // Main panel for the dashboard
         mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setOpaque(false); // Make the panel transparent to show the background image
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.setOpaque(false); // Transparent button panel
         addButtons(buttonPanel);
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
 
         contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setOpaque(false); // Transparent content panel
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        customerFrame.add(mainPanel);
+        // Add mainPanel to backgroundLabel
+        backgroundLabel.add(mainPanel);
+
+        // Add backgroundLabel to the frame
+        customerFrame.add(backgroundLabel);
         customerFrame.setVisible(true);
     }
 
     private void setupProductTable() {
         contentPanel.removeAll();
 
-        String[] columns = {"ID", "Name", "Company", "Price", "Stock"};
+        String[] columns = { "ID", "Name", "Company", "Price", "Stock" };
         tableModel = new DefaultTableModel(columns, 0);
         productTable = new JTable(tableModel);
         refreshProductTable();
@@ -224,9 +275,21 @@ public class CustomerGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(productTable);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JButton addToCartButton = new JButton("Add to Cart");
+        addToCartButton.setFont(new Font("Arial", Font.BOLD, 16));
+        addToCartButton.setPreferredSize(new Dimension(150, 40));
+        addToCartButton.addActionListener(e -> addToCart());
+        buttonPanel.add(addToCartButton);
+
         JButton backButton = new JButton("Back to Menu");
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.setPreferredSize(new Dimension(150, 40));
         backButton.addActionListener(e -> showMainMenu());
-        contentPanel.add(backButton, BorderLayout.SOUTH);
+        buttonPanel.add(backButton);
+
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         contentPanel.revalidate();
         contentPanel.repaint();
@@ -241,8 +304,9 @@ public class CustomerGUI extends JFrame {
     private void refreshProductTable() {
         tableModel.setRowCount(0);
         List<Product> products = customer.getProducts();
+        System.out.println("Refreshing product table with " + products.size() + " products.");
         for (Product product : products) {
-            tableModel.addRow(new Object[]{
+            tableModel.addRow(new Object[] {
                     product.getId(),
                     product.getName(),
                     product.getCompany(),
@@ -250,38 +314,89 @@ public class CustomerGUI extends JFrame {
                     product.getStock()
             });
         }
+        System.out.println("Product table refreshed with " + tableModel.getRowCount() + " rows.");
     }
 
     private void addButtons(JPanel buttonPanel) {
+        buttonPanel.setLayout(new GridLayout(2, 3, 20, 20)); // 2 rows, 3 columns, with spacing
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50)); // Add padding around the panel
+
         JButton showProductsButton = new JButton("Show Products");
         JButton viewCartButton = new JButton("View Cart");
+        JButton addToCartButton = new JButton("Add to Cart");
+        JButton placeOrderButton = new JButton("Place Order");
         JButton viewOrdersButton = new JButton("View Orders");
         JButton logoutButton = new JButton("Logout");
-        JButton returnToLandingButton = new JButton("Return to Landing Page");
 
+        // Set button properties to make them large and visually appealing
+        JButton[] buttons = {
+                showProductsButton, viewCartButton, addToCartButton, placeOrderButton, viewOrdersButton, logoutButton
+        };
+
+        for (JButton button : buttons) {
+            button.setFont(new Font("Arial", Font.BOLD, 18));
+            button.setPreferredSize(new Dimension(200, 100));
+            buttonPanel.add(button);
+        }
+
+        // Adding action listeners
         showProductsButton.addActionListener(e -> setupProductTable());
         viewCartButton.addActionListener(e -> viewCart());
+        addToCartButton.addActionListener(e -> addToCart());
+        placeOrderButton.addActionListener(e -> placeOrder());
         viewOrdersButton.addActionListener(e -> viewOrders());
         logoutButton.addActionListener(e -> logout());
-        returnToLandingButton.addActionListener(e -> returnToLandingPage());
-
-        buttonPanel.add(showProductsButton);
-        buttonPanel.add(viewCartButton);
-        buttonPanel.add(viewOrdersButton);
-        buttonPanel.add(logoutButton);
-        buttonPanel.add(returnToLandingButton);
     }
 
+    private void addToCart() {
+        int selectedRow = productTable.getSelectedRow();
+        if (selectedRow != -1) {
+            int productId = (int) tableModel.getValueAt(selectedRow, 0);
+            String productName = (String) tableModel.getValueAt(selectedRow, 1);
+            double productPrice = (double) tableModel.getValueAt(selectedRow, 3);
+            int currentStock = (int) tableModel.getValueAt(selectedRow, 4);
+
+            if (currentStock > 0) {
+                String quantityString = JOptionPane.showInputDialog(customerFrame, "Enter Quantity:");
+                try {
+                    int quantity = Integer.parseInt(quantityString);
+                    if (quantity > 0 && quantity <= currentStock) {
+                        OrderItem item = new OrderItem(productId, productName, BigDecimal.valueOf(productPrice), quantity);
+                        customer.addItemToCart(item);
+                        customer.updateProductStock(productId, currentStock - quantity);
+                        JOptionPane.showMessageDialog(customerFrame, "Product added to cart!");
+                        refreshProductTable(); // Refresh to show updated stock
+                    } else {
+                        JOptionPane.showMessageDialog(customerFrame, "Invalid quantity. Please enter a number between 1 and " + currentStock + ".");
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(customerFrame, "Please enter a valid quantity.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(customerFrame, "This product is out of stock.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(customerFrame, "Please select a product to add to cart.");
+        }
+    }
+
+    private void placeOrder() {
+        if (customer.getTotalCartPrice() > 0) {
+            checkout();
+        } else {
+            JOptionPane.showMessageDialog(customerFrame, "Your cart is empty. Add products to the cart before placing an order.");
+        }
+    }
     private void viewCart() {
         contentPanel.removeAll();
 
-        String[] columns = {"Product", "Quantity", "Price"};
+        String[] columns = { "Product", "Quantity", "Price" };
         DefaultTableModel cartTableModel = new DefaultTableModel(columns, 0);
         JTable cartTable = new JTable(cartTableModel);
 
         List<OrderItem> cartItems = customer.viewCartItems();
         for (OrderItem item : cartItems) {
-            cartTableModel.addRow(new Object[]{
+            cartTableModel.addRow(new Object[] {
                     item.getProductName(),
                     item.getQuantity(),
                     item.getTotalPrice()
@@ -291,13 +406,25 @@ public class CustomerGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(cartTable);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel bottomPanel = new JPanel(new FlowLayout());
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         JButton checkoutButton = new JButton("Checkout");
-        checkoutButton.addActionListener(e -> checkout());
-        bottomPanel.add(checkoutButton);
-
         JButton backButton = new JButton("Back to Menu");
+        JButton removeButton = new JButton("Remove from Cart");
+
+        checkoutButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        removeButton.setFont(new Font("Arial", Font.BOLD, 16));
+
+        checkoutButton.setPreferredSize(new Dimension(150, 40));
+        backButton.setPreferredSize(new Dimension(150, 40));
+        removeButton.setPreferredSize(new Dimension(200, 40));
+
+        checkoutButton.addActionListener(e -> checkout());
         backButton.addActionListener(e -> showMainMenu());
+        removeButton.addActionListener(e -> removeFromCart(cartTable));
+
+        bottomPanel.add(checkoutButton);
+        bottomPanel.add(removeButton);
         bottomPanel.add(backButton);
 
         contentPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -307,29 +434,48 @@ public class CustomerGUI extends JFrame {
     }
 
     private void checkout() {
-        String address = JOptionPane.showInputDialog(customerFrame, "Enter delivery address:");
-        if (address != null && !address.isEmpty()) {
-            try {
-                customer.placeOrder(address);
-                JOptionPane.showMessageDialog(customerFrame, "Order placed successfully!");
-                showMainMenu();
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(customerFrame, "Error placing order: " + e.getMessage());
+        if (customer.getTotalCartPrice() > 0) {
+            JPanel panel = new JPanel(new GridLayout(0, 1));
+            panel.add(new JLabel("Enter shipping address:"));
+            JTextField addressField = new JTextField(20);
+            panel.add(addressField);
+            panel.add(new JLabel("Enter payment method:"));
+            JTextField paymentField = new JTextField(20);
+            panel.add(paymentField);
+
+            int result = JOptionPane.showConfirmDialog(customerFrame, panel, "Checkout", JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.OK_OPTION) {
+                String address = addressField.getText().trim();
+                String paymentMethod = paymentField.getText().trim();
+
+                if (!address.isEmpty() && !paymentMethod.isEmpty()) {
+                    try {
+                        customer.placeOrder(address);
+                        JOptionPane.showMessageDialog(customerFrame, "Order placed successfully!\nShipping Address: " + address + "\nPayment Method: " + paymentMethod);
+                        showMainMenu();
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(customerFrame, "Error placing order: " + e.getMessage());
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(customerFrame, "Please enter both shipping address and payment method.");
+                }
             }
+        } else {
+            JOptionPane.showMessageDialog(customerFrame, "Your cart is empty. Add products to the cart before checking out.");
         }
     }
 
     private void viewOrders() {
         contentPanel.removeAll();
 
-        String[] columns = {"Order ID", "Date", "Total", "Status"};
+        String[] columns = { "Order ID", "Date", "Total", "Status" };
         DefaultTableModel orderTableModel = new DefaultTableModel(columns, 0);
         JTable orderTable = new JTable(orderTableModel);
 
         try {
             List<Order> orders = customer.viewOrders();
             for (Order order : orders) {
-                orderTableModel.addRow(new Object[]{
+                orderTableModel.addRow(new Object[] {
                         order.getOrderId(),
                         order.getOrderDate(),
                         order.getOrderStatus()
@@ -343,8 +489,12 @@ public class CustomerGUI extends JFrame {
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
         JButton backButton = new JButton("Back to Menu");
+        backButton.setFont(new Font("Arial", Font.BOLD, 16));
+        backButton.setPreferredSize(new Dimension(150, 40));
         backButton.addActionListener(e -> showMainMenu());
-        contentPanel.add(backButton, BorderLayout.SOUTH);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(backButton);
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         contentPanel.revalidate();
         contentPanel.repaint();
@@ -356,9 +506,25 @@ public class CustomerGUI extends JFrame {
         showLoginScreen();
     }
 
-    private void returnToLandingPage() {
-        loginFrame.dispose();
-        new LandingPage();
+    private void removeFromCart(JTable cartTable) {
+        int selectedRow = cartTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String productName = (String) cartTable.getValueAt(selectedRow, 0);
+            int productId = -1;
+            for (OrderItem item : customer.viewCartItems()) {
+                if (item.getProductName().equals(productName)) {
+                    productId = item.getProductId();
+                    break;
+                }
+            }
+            if (productId != -1) {
+                customer.removeItemFromCart(productId);
+                JOptionPane.showMessageDialog(customerFrame, "Product removed from cart!");
+                viewCart(); // Refresh the cart view
+            }
+        } else {
+            JOptionPane.showMessageDialog(customerFrame, "Please select a product to remove from the cart.");
+        }
     }
 }
 

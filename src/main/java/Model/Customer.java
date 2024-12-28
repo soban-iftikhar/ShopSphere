@@ -15,13 +15,18 @@ public class Customer extends Person implements Serializable {
     // Constructor
     public Customer() {
         this.cart = new Cart();
+        loadUserCredentials();
+        Product.loadProductsFromFile(); // Add this line
     }
 
     public Customer(String name, String username, String email, String password, String phone, String address) {
         super(name, username, email, password, phone, address);
         this.cart = new Cart();
+        loadUserCredentials();
     }
-
+    public void updateProductStock(int productId, int newStock) {
+        Product.updateStock(productId, newStock);
+    }
     @Override
     public void signup(String username, String email, String password) {
         if (usernames.contains(username)) {
@@ -30,7 +35,6 @@ public class Customer extends Person implements Serializable {
         usernames.add(username);
         emails.add(email);
         passwords.add(password);
-
         saveUserCredentials();
     }
 
@@ -59,7 +63,7 @@ public class Customer extends Person implements Serializable {
         return Product.findProductById(id);
     }
 
-    // Method to save user credentials to a file
+    // Save user credentials to a file
     private void saveUserCredentials() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(usernames);
@@ -70,9 +74,9 @@ public class Customer extends Person implements Serializable {
         }
     }
 
-    // Method to load user credentials from a file
+    // Load user credentials from a file
     @SuppressWarnings("unchecked")
-    public void loadUserCredentials() {
+    private void loadUserCredentials() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
             usernames.clear();
             emails.clear();
@@ -81,11 +85,11 @@ public class Customer extends Person implements Serializable {
             emails.addAll((ArrayList<String>) ois.readObject());
             passwords.addAll((ArrayList<String>) ois.readObject());
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error loading credentials: " + e.getMessage());
+            System.out.println("No previous credentials found. Starting fresh.");
         }
     }
 
-    // Model.Cart management methods
+    // Cart Management
     public void addItemToCart(OrderItem item) {
         cart.addItem(item);
     }
@@ -110,7 +114,7 @@ public class Customer extends Person implements Serializable {
         return cart.getTotalPrice();
     }
 
-    // Model.Order management methods
+    // Order Management
     public void placeOrder(String customerAddress) throws IOException {
         Order order = new Order(customerAddress);
         for (OrderItem item : cart.getItems()) {
@@ -124,4 +128,3 @@ public class Customer extends Person implements Serializable {
         return Order.loadOrders();
     }
 }
-
