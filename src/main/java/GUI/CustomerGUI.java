@@ -382,11 +382,39 @@ public class CustomerGUI extends JFrame {
 
     private void placeOrder() {
         if (customer.getTotalCartPrice() > 0) {
-            checkout();
+            JPanel panel = new JPanel(new GridLayout(0, 1));
+            panel.add(new JLabel("Enter shipping address:"));
+            JTextField addressField = new JTextField(20);
+            panel.add(addressField);
+
+            panel.add(new JLabel("Select payment method:"));
+            String[] paymentMethods = {"Easypaisa/Jazzcash", "Credit or Debit Card", "Cash on Delivery"};
+            JComboBox<String> paymentMethodCombo = new JComboBox<>(paymentMethods);
+            panel.add(paymentMethodCombo);
+
+            int result = JOptionPane.showConfirmDialog(customerFrame, panel, "Checkout", JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.OK_OPTION) {
+                String address = addressField.getText().trim();
+                String paymentMethod = (String) paymentMethodCombo.getSelectedItem();
+
+                if (!address.isEmpty() && paymentMethod != null) {
+                    try {
+                        customer.placeOrder(address, paymentMethod);
+                        JOptionPane.showMessageDialog(customerFrame, "Order placed successfully!\nShipping Address: " + address + "\nPayment Method: " + paymentMethod);
+                        showMainMenu();
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(customerFrame, "Error placing order: " + e.getMessage());
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(customerFrame, "Please enter shipping address and select a payment method.");
+                }
+            }
         } else {
             JOptionPane.showMessageDialog(customerFrame, "Your cart is empty. Add products to the cart before placing an order.");
         }
     }
+
+
     private void viewCart() {
         contentPanel.removeAll();
 
@@ -465,6 +493,26 @@ public class CustomerGUI extends JFrame {
         }
     }
 
+    private void removeFromCart(JTable cartTable) {
+        int selectedRow = cartTable.getSelectedRow();
+        if (selectedRow != -1) {
+            String productName = (String) cartTable.getValueAt(selectedRow, 0);
+            int productId = -1;
+            for (OrderItem item : customer.viewCartItems()) {
+                if (item.getProductName().equals(productName)) {
+                    productId = item.getProductId();
+                    break;
+                }
+            }
+            if (productId != -1) {
+                customer.removeItemFromCart(productId);
+                JOptionPane.showMessageDialog(customerFrame, "Product removed from cart!");
+                viewCart(); // Refresh the cart view
+            }
+        } else {
+            JOptionPane.showMessageDialog(customerFrame, "Please select a product to remove from the cart.");
+        }
+    }
     private void viewOrders() {
         contentPanel.removeAll();
 
@@ -515,25 +563,5 @@ public class CustomerGUI extends JFrame {
         showLoginScreen();
     }
 
-    private void removeFromCart(JTable cartTable) {
-        int selectedRow = cartTable.getSelectedRow();
-        if (selectedRow != -1) {
-            String productName = (String) cartTable.getValueAt(selectedRow, 0);
-            int productId = -1;
-            for (OrderItem item : customer.viewCartItems()) {
-                if (item.getProductName().equals(productName)) {
-                    productId = item.getProductId();
-                    break;
-                }
-            }
-            if (productId != -1) {
-                customer.removeItemFromCart(productId);
-                JOptionPane.showMessageDialog(customerFrame, "Product removed from cart!");
-                viewCart(); // Refresh the cart view
-            }
-        } else {
-            JOptionPane.showMessageDialog(customerFrame, "Please select a product to remove from the cart.");
-        }
-    }
 }
 

@@ -25,7 +25,7 @@ public class Admin extends Person {
         return username.equals(adminUsername) && password.equals(adminPassword);
     }
 
-    public void addProduct(int id, String name, String company, double price, int stock) {
+    public void addProduct(int id, String name, String company, double price, int stock) throws IllegalArgumentException {
         Product product = new Product(id, name, company, price, stock);
         Product.addProduct(product);
     }
@@ -43,19 +43,43 @@ public class Admin extends Person {
     public boolean updateProduct(int id, String name, String company, double price, int stock) {
         Product product = Product.findProductById(id);
         if (product != null) {
-            if (!name.isEmpty()) product.setName(name);
-            if (!company.isEmpty()) product.setCompany(company);
-            if (price > 0) product.setPrice(price);
-            if (stock >= 0) product.setStock(stock);
-            Product.saveProductsToFile();
-            return true;
+            boolean isChanged = false;
+            if (!name.isEmpty() && !name.equals(product.getName())) {
+                product.setName(name);
+                isChanged = true;
+            }
+            if (!company.isEmpty() && !company.equals(product.getCompany())) {
+                product.setCompany(company);
+                isChanged = true;
+            }
+            if (price > 0 && price != product.getPrice()) {
+                product.setPrice(price);
+                isChanged = true;
+            }
+            if (stock >= 0 && stock != product.getStock()) {
+                product.setStock(stock);
+                isChanged = true;
+            }
+
+            if (isChanged) {
+                Product.saveProductsToFile();
+                return true;
+            } else {
+                throw new IllegalArgumentException("No changes detected. Product ID cannot be updated.");
+            }
         }
         return false;
+    }
+
+    public void addOrUpdateProduct(int id, String name, String company, double price, int stock) throws IllegalArgumentException {
+        Product product = new Product(id, name, company, price, stock);
+        Product.addOrUpdateProduct(product);
     }
 
     public List<Order> viewOrders() throws IOException {
         return Order.loadOrders();
     }
+
 
     public boolean updateOrderStatus(String orderId, String newStatus) throws IOException {
         List<Order> orders = Order.loadOrders();

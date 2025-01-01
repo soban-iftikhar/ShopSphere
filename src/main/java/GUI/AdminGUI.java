@@ -19,6 +19,7 @@ public class AdminGUI extends JFrame {
 
     public AdminGUI() {
         admin = new Admin();
+        tableModel = new DefaultTableModel();
         showLoginScreen();
     }
 
@@ -48,8 +49,8 @@ public class AdminGUI extends JFrame {
 
         // Glass panel for login fields
         JPanel glassPanel = new JPanel();
-        glassPanel.setBounds(250, 150, 300, 250); // Adjusted height to fit better
-        glassPanel.setBackground(new Color(80, 114, 123, 200)); // Slight transparency
+        glassPanel.setBounds(250, 150, 300, 250);
+        glassPanel.setBackground(new Color(80, 114, 123, 200));
         glassPanel.setBorder(BorderFactory.createLineBorder(new Color(120, 160, 131), 2));
         glassPanel.setLayout(null);
 
@@ -224,7 +225,7 @@ public class AdminGUI extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField idField = new JTextField(20); // Wider fields
+        JTextField idField = new JTextField(20);
         JTextField nameField = new JTextField(20);
         JTextField companyField = new JTextField(20);
         JTextField priceField = new JTextField(20);
@@ -260,7 +261,7 @@ public class AdminGUI extends JFrame {
         gbc.gridx = 1;
         dialog.add(stockField, gbc);
 
-        JButton submitButton = new JButton("Add");
+        JButton submitButton = new JButton("Add/Update");
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 2;
@@ -275,19 +276,21 @@ public class AdminGUI extends JFrame {
                 double price = Double.parseDouble(priceField.getText());
                 int stock = Integer.parseInt(stockField.getText());
 
-                admin.addProduct(id, name, company, price, stock);
+                admin.addOrUpdateProduct(id, name, company, price, stock);
                 refreshProductTable();
                 dialog.dispose();
+                JOptionPane.showMessageDialog(adminFrame, "Product added/updated successfully");
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Please enter valid numbers");
+                JOptionPane.showMessageDialog(dialog, "Please enter valid numbers for ID, price, and stock");
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(dialog, ex.getMessage());
             }
         });
 
-        dialog.setSize(400, 300); // Adjust the size of the dialog
+        dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(adminFrame);
         dialog.setVisible(true);
     }
-
     private void showRemoveProductDialog() {
         String idStr = JOptionPane.showInputDialog(adminFrame, "Enter Product ID to remove:");
         if (idStr != null && !idStr.isEmpty()) {
@@ -315,15 +318,14 @@ public class AdminGUI extends JFrame {
                     JDialog dialog = new JDialog(adminFrame, "Update Product", true);
                     dialog.setLayout(new GridBagLayout());
                     GridBagConstraints gbc = new GridBagConstraints();
-                    gbc.insets = new Insets(5, 5, 5, 5); // Add space between components
+                    gbc.insets = new Insets(5, 5, 5, 5);
                     gbc.fill = GridBagConstraints.HORIZONTAL;
 
-                    JTextField nameField = new JTextField(product.getName(), 20); // Wider fields
+                    JTextField nameField = new JTextField(product.getName(), 20);
                     JTextField companyField = new JTextField(product.getCompany(), 20);
                     JTextField priceField = new JTextField(String.valueOf(product.getPrice()), 20);
                     JTextField stockField = new JTextField(String.valueOf(product.getStock()), 20);
 
-                    // Add components with GridBag constraints
                     gbc.gridx = 0;
                     gbc.gridy = 0;
                     dialog.add(new JLabel("Name:"), gbc);
@@ -370,18 +372,20 @@ public class AdminGUI extends JFrame {
                                 JOptionPane.showMessageDialog(dialog, "Failed to update product");
                             }
                         } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(dialog, "Please enter valid numbers");
+                            JOptionPane.showMessageDialog(dialog, "Please enter valid numbers for price and stock");
+                        } catch (IllegalArgumentException ex) {
+                            JOptionPane.showMessageDialog(dialog, ex.getMessage());
                         }
                     });
 
-                    dialog.setSize(400, 300); // Adjust the dialog size to match the previous size
+                    dialog.setSize(400, 300);
                     dialog.setLocationRelativeTo(adminFrame);
                     dialog.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(adminFrame, "Product not found");
                 }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(adminFrame, "Please enter a valid ID");
+                JOptionPane.showMessageDialog(adminFrame, "Please enter a valid Product ID");
             }
         }
     }
@@ -520,6 +524,7 @@ public class AdminGUI extends JFrame {
             JOptionPane.showMessageDialog(adminFrame, "Please select an order to update.");
         }
     }
+
 
     private void logout() {
         admin.logout();

@@ -16,18 +16,14 @@ public class Order implements Serializable {
     private String orderStatus;
     private String paymentMethod;
 
-    public Order(String customerUsername, String customerAddress, String paymentMethod) { // Update constructor
+    public Order(String customerUsername, String customerAddress, String paymentMethod) {
         this.orderId = generateOrderId();
         this.customerUsername = customerUsername;
         this.customerAddress = customerAddress;
         this.orderDateTime = LocalDateTime.now();
         this.items = new ArrayList<>();
         this.orderStatus = "Pending";
-        this.paymentMethod = paymentMethod; // Add this line
-    }
-
-    private String generateOrderId() {
-        return UUID.randomUUID().toString().substring(0, 8);
+        this.paymentMethod = paymentMethod;
     }
 
     public void addItem(OrderItem item) {
@@ -42,7 +38,7 @@ public class Order implements Serializable {
         return orderId;
     }
 
-    public String getCustomerUsername() { // Add this getter
+    public String getCustomerUsername() {
         return customerUsername;
     }
 
@@ -69,14 +65,30 @@ public class Order implements Serializable {
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
     }
+    private String generateOrderId() {
+        return String.format("%08d", Math.abs(new Random().nextInt(100000000)));
+    }
+
+    public static boolean isOrderIdUnique(String orderId) throws IOException {
+        List<Order> existingOrders = loadOrders();
+        return existingOrders.stream().noneMatch(order -> order.getOrderId().equals(orderId));
+    }
 
     public void saveOrder() throws IOException {
+        String newOrderId;
+        do {
+            newOrderId = generateOrderId();
+        } while (!isOrderIdUnique(newOrderId));
+
+        this.orderId = newOrderId;
+
         List<Order> orders = loadOrders();
         orders.add(this);
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ORDER_FILE))) {
             oos.writeObject(orders);
         }
     }
+
     public String getPaymentMethod() {
         return paymentMethod;
     }

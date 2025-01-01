@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Product implements Serializable {
-    private static final long serialVersionUID = 5021507558065239732L;  // Add this line
+    private static final long serialVersionUID = 5021507558065239732L;
     private static final String FILE_NAME = "products.txt";
     private static List<Product> productList = new ArrayList<>();
 
@@ -21,6 +21,9 @@ public class Product implements Serializable {
 
     // Constructor
     public Product(int id, String name, String company, double price, int stock) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Product ID must be a positive integer.");
+        }
         this.id = id;
         this.name = name;
         this.company = company;
@@ -101,14 +104,34 @@ public class Product implements Serializable {
             System.err.println("Error loading products: " + e.getMessage());
         }
     }
-
+    public static boolean addOrUpdateProduct(Product newProduct) throws IllegalArgumentException {
+        for (Product existingProduct : productList) {
+            if (existingProduct.getId() == newProduct.getId()) {
+                if (existingProduct.getName().equals(newProduct.getName()) &&
+                        existingProduct.getCompany().equals(newProduct.getCompany()) &&
+                        Double.compare(existingProduct.getPrice(), newProduct.getPrice()) == 0) {
+                    // Update stock if all other fields match
+                    existingProduct.setStock(existingProduct.getStock() + newProduct.getStock());
+                    saveProductsToFile();
+                    return true;
+                } else {
+                    // Throw exception if ID exists but other fields are different
+                    throw new IllegalArgumentException("A product with this ID already exists with different details.");
+                }
+            }
+        }
+        // Add new product if no matching ID found
+        productList.add(newProduct);
+        saveProductsToFile();
+        return true;
+    }
     // Method to Add a Model.Product
-    public static boolean addProduct(Product product) {
+    public static boolean addProduct(Product product) throws IllegalArgumentException {
         if (findProductById(product.getId()) != null) {
-            return false;
+            throw new IllegalArgumentException("A product with this ID already exists.");
         }
         productList.add(product);
-        saveProductsToFile();  // Save after adding a product
+        saveProductsToFile();
         return true;
     }
 

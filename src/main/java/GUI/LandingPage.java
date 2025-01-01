@@ -2,8 +2,8 @@ package GUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+
 
 public class LandingPage extends JFrame {
     private JFrame mainFrame;
@@ -16,7 +16,7 @@ public class LandingPage extends JFrame {
         mainFrame = new JFrame("ShopSphere E-commerce Application");
         mainFrame.setSize(800, 600);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setResizable(false);
+        mainFrame.setResizable(true);
         mainFrame.setLocationRelativeTo(null);
 
         // Custom JPanel for background image
@@ -30,7 +30,8 @@ public class LandingPage extends JFrame {
                 g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
             }
         };
-        backgroundPanel.setLayout(null); // Set layout to null for absolute positioning
+        backgroundPanel.setLayout(null);
+
 
         JLabel label = new JLabel("Welcome to ShopSphere");
         label.setHorizontalAlignment(JLabel.CENTER);
@@ -41,10 +42,10 @@ public class LandingPage extends JFrame {
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBounds(250, 200, 300, 200);
-        buttonPanel.setBackground(new Color(80, 114, 123, 200)); // Slight transparency
+        buttonPanel.setBackground(new Color(80, 114, 123, 200));
         buttonPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createRaisedBevelBorder(),
-                BorderFactory.createLineBorder(new Color(120, 160, 131), 2) // 3D effect
+                BorderFactory.createLineBorder(new Color(120, 160, 131), 2)
         ));
         buttonPanel.setLayout(new GridLayout(2, 1, 10, 10));
 
@@ -76,7 +77,8 @@ public class LandingPage extends JFrame {
         buttonPanel.add(adminButton);
 
         backgroundPanel.add(buttonPanel);
-        mainFrame.setContentPane(backgroundPanel); // Set the background panel as the content pane
+        mainFrame.setContentPane(backgroundPanel);
         mainFrame.setVisible(true);
     }
+
 }
